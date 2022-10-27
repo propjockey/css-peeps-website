@@ -3,7 +3,7 @@
 # css-peeps-website
 CSS-Peeps website
 
-# Links
+## Links
 
 [Online CSS-Peeps Builder](https://css-peeps.com)
 
@@ -11,8 +11,6 @@ CSS-Peeps website
 
 [Jane Ori](https://twitter.com/Jane0ri)
 
-[BSD-2-Clause license](https://opensource.org/licenses/BSD-2-Clause)
+[npm CSS-Peeps](https://www.npmjs.com/package/css-peeps)
 
-[npm](https://www.npmjs.com/package/css-peeps)
-
-[github](https://github.com/propjockey/css-peeps)
+[github CSS-Peeps](https://github.com/propjockey/css-peeps)

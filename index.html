@@ -650,6 +650,136 @@
         document.querySelector("main").style = this.buildStyleHandoff()
       }
 
+      postToCodepen = function (css, html) {
+        const codepenform = document.forms["codepenform"]
+        const codpenData = {
+          editors: "110", // hide js panel
+          html: html.replace(/^          /gm, ""),
+          css: css.replace(/^          /gm, ""),
+          js: "// CSS-Peeps does not use JS! <3",
+          title: "My CSS-Peeps Character!",
+          layout: "left",
+          tags: ["css-peeps", "build-a-peep"]
+        }
+        codepenform.querySelector("[name='data']").value = JSON.stringify(codpenData)
+        codepenform.submit()
+        return false
+      }
+
+      codepenTypeGrinding = function () {
+        const { offsetWidth, offsetHeight } = peepResize
+        const opts = this.customization
+        const config = this.config
+        const cfgCSS = `
+            --peep-head: ${config.head};
+            --peep-face: ${config.face};
+            --peep-accessory: ${config.accessory};
+            --peep-facial-hair: ${config.facialHair};
+            --peep-body: ${config.body};
+        `.replace(/\n\s+[^:]+: ;/g, "")
+        const css = `
+          @import url(https://unpkg.com/css-peeps@1/css-peeps.css);
+
+          a {${cfgCSS}
+
+            --peep-hat-color: ${opts["hat-color"]};
+            --peep-hair-color: ${opts["hair-color"]};
+            --peep-skin-color: ${opts["skin-color"]};
+            --peep-accessory-color: ${opts["accessory-color"]};
+            --peep-facial-hair-color: ${opts["facial-hair-color"]};
+            --peep-object-color: ${opts["object-color"]};
+            --peep-clothes-color: ${opts["clothes-color"]};
+
+            --peep-zoom: ${opts["zoom"]};
+            --peep-rotate: ${opts["rotate"] + "deg"};
+            --peep-flipped: ${opts["flipped"]};
+            --peep-body-offset-x: ${opts["body-offset-x"] + "px"};
+            --peep-body-offset-y: ${opts["body-offset-y"] + "px"};
+
+            display: inline-block;
+            width: ${offsetWidth}px;
+            height: ${offsetHeight}px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid var(--peep-accessory-color);
+          }
+        `
+        const html = `
+          <a class="css-peeps" href="https://css-peeps.com/"></a>
+        `
+        this.postToCodepen(css, html)
+      }
+      codepenBackwardsCompat = function () {
+        const { offsetWidth, offsetHeight } = peepResize
+        const opts = this.customization
+        const config = this.config
+        const css =  `
+          @import url(https://unpkg.com/css-peeps@1/css-peeps.css);
+
+          a {
+            --peep-hat-color: ${opts["hat-color"]};
+            --peep-hair-color: ${opts["hair-color"]};
+            --peep-skin-color: ${opts["skin-color"]};
+            --peep-accessory-color: ${opts["accessory-color"]};
+            --peep-facial-hair-color: ${opts["facial-hair-color"]};
+            --peep-object-color: ${opts["object-color"]};
+            --peep-clothes-color: ${opts["clothes-color"]};
+
+            --peep-zoom: ${opts["zoom"]};
+            --peep-rotate: ${opts["rotate"] + "deg"};
+            --peep-flipped: ${opts["flipped"]};
+            --peep-body-offset-x: ${opts["body-offset-x"] + "px"};
+            --peep-body-offset-y: ${opts["body-offset-y"] + "px"};
+
+            display: inline-block;
+            width: ${offsetWidth}px;
+            height: ${offsetHeight}px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid var(--peep-accessory-color);
+          }
+        `
+        const html = `
+          <a href="https://css-peeps.com/" data-css-peeps="${Object.keys(config).map(p => config[p]).filter(p => p).join(" ")}"></a>
+        `
+        this.postToCodepen(css, html)
+      }
+      codepenCompatApi = function () {
+        const { offsetWidth, offsetHeight } = peepResize
+        const opts = this.customization
+        const config = this.config
+        const css =  `
+          @import url(https://unpkg.com/css-peeps@1/css-peeps.compat.css);
+
+          a {
+            --peep-hat-color: ${opts["hat-color"]};
+            --peep-hair-color: ${opts["hair-color"]};
+            --peep-skin-color: ${opts["skin-color"]};
+            --peep-accessory-color: ${opts["accessory-color"]};
+            --peep-facial-hair-color: ${opts["facial-hair-color"]};
+            --peep-object-color: ${opts["object-color"]};
+            --peep-clothes-color: ${opts["clothes-color"]};
+
+            --peep-zoom: ${opts["zoom"]};
+            --peep-rotate: ${opts["rotate"] + "deg"};
+            --peep-flipped: ${opts["flipped"]};
+            --peep-body-offset-x: ${opts["body-offset-x"] + "px"};
+            --peep-body-offset-y: ${opts["body-offset-y"] + "px"};
+
+            display: inline-block;
+            width: ${offsetWidth}px;
+            height: ${offsetHeight}px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid var(--peep-accessory-color);
+          }
+        `
+        const html = `
+          <a href="https://css-peeps.com/" data-css-peeps="${Object.keys(config).map(p => config[p]).filter(p => p).join(" ")}"></a>
+        `
+        this.postToCodepen(css, html)
+      }
+
       rand = (arr) => arr[~~(Math.random() * arr.length)]
       heads = ["afro", "bangs1", "bangs2", "bantu-knots", "teddy", "bun1", "bun2", "buns", "cornrows1", "cornrows2", "flat-top1", "flat-top2", "gray-bun", "gray-medium", "gray-short", "beanie", "sierra", "hijab", "long-afro", "long-bangs", "long-curly", "long-straight", "medium1", "medium2", "medium3", "medium-bangs1", "medium-bangs2", "medium-bangs3", "medium-straight", "mohawk1", "mohawk2", "bald1", "bald2", "bald3", "pomp", "shaved1", "shaved2", "shaved3", "short1", "short2", "short3", "short4", "short5", "turban", "twists1", "twists2", ""]
       faces = ["awe", "talking", "smile", "smile-big", "laughing", "smile-gap", "calm", "blank", "cheeky", "serious", "concerned-fear", "gasp", "peace", "cute", "cyclops", "fangry", "monster", "driven", "eating-happy", "eyes-closed", "fear", "hectic", "loving-grin1", "loving-grin2", "old", "rage", "sad", "suspicious", "tired", "angry", ""]
@@ -763,7 +893,6 @@
         ev.stopPropagation()
         const customization = this.customization
         const delta = ev.shiftKey ? 1 : 10
-        const { offsetWidth, offsetHeight } = peepResize
         switch (ev.keyCode) {
           case 38: { // up
             customization["body-offset-y"] = parseFloat(customization["body-offset-y"]) - delta
@@ -830,6 +959,15 @@
             event: keydown ${this.moveHandleKeys};
             event: pointerdown ${this.dragStart};
             event: pointermove ${this.throttledReposition};
+          }
+          .codepen-type-grinding {
+            event: click ${this.codepenTypeGrinding};
+          }
+          .codepen-backwards-compat {
+            event: click ${this.codepenBackwardsCompat};
+          }
+          .codepen-compat-api {
+            event: click ${this.codepenCompatApi};
           }
         `;
       }
@@ -965,7 +1103,7 @@
             ✨ Variant options set in CSS ✨
           </div>
           <div class="option-choices">
-            <button aria-label="Show Peep code with @property supported API using custom properties in CodePen">CodePen [↗]</button>
+            <button class="codepen-type-grinding" aria-label="Show Peep code with @property supported API using custom properties in CodePen">CodePen [↗]</button>
             <!--button>View Code</button-->
           </div>
 
@@ -973,7 +1111,7 @@
             Variant options set in HTML
           </div>
           <div class="option-choices">
-            <button aria-label="Show Peep code with @property supported API using data attribute values in CodePen">CodePen [↗]</button>
+            <button class="codepen-backwards-compat" aria-label="Show Peep code with @property supported API using data attribute values in CodePen">CodePen [↗]</button>
             <!--button>View Code</button-->
           </div>
           
@@ -987,7 +1125,7 @@
             Variant options set in HTML
           </div>
           <div class="option-choices">
-            <button aria-label="Show Peep code on CodePen using data attributes and the compatibility focused API">CodePen [↗]</button>
+            <button class="codepen-compat-api" aria-label="Show Peep code on CodePen using data attributes and the compatibility focused API">CodePen [↗]</button>
             <!--button>View Code</button-->
           </div>
         </div>
@@ -1004,6 +1142,9 @@
 
   <template id="peep-part"><button class="peep-part" data-css-peeps></button></template>
 
+  <form style="display:none;" name="codepenform" method="post" action="https://codepen.io/pen/define/" target="_blank">
+    <input type="hidden" name="data" value="">
+  </form>
 
   <textarea style="display: none;">
     // super advanced peeps optimization alogorithm
