@@ -1,0 +1,171 @@
+<script>
+const parts = {
+  head: ["afro", "bangs1", "bangs2", "bantu-knots", "teddy", "bun1", "bun2", "buns", "cornrows1", "cornrows2", "flat-top1", "flat-top2", "gray-bun", "gray-medium", "gray-short", "beanie", "sierra", "hijab", "long-afro", "long-bangs", "long-curly", "long-straight", "medium1", "medium2", "medium3", "medium-bangs1", "medium-bangs2", "medium-bangs3", "medium-straight", "mohawk1", "mohawk2", "bald1", "bald2", "bald3", "pomp", "shaved1", "shaved2", "shaved3", "short1", "short2", "short3", "short4", "short5", "turban", "twists1", "twists2", ""],
+  face: ["awe", "talking", "smile", "smile-big", "laughing", "smile-gap", "calm", "blank", "cheeky", "serious", "concerned-fear", "gasp", "peace", "cute", "cyclops", "fangry", "monster", "driven", "eating-happy", "eyes-closed", "fear", "hectic", "loving-grin1", "loving-grin2", "old", "rage", "sad", "suspicious", "tired", "angry", ""],
+  accessory: ["eyepatch", "glasses1", "glasses2", "glasses3", "glasses4", "glasses5", "sunglasses1", "sunglasses2", ""],
+  "facial-hair": ["chinhair", "beard1", "beard2", "beard3", "beard4", "goatee1", "goatee2", "mustache1", "mustache2", "mustache3", "mustache4", "mustache5", "mustache6", "mustache7", "mustache8", "mustache9", ""],
+  body: ["blazer", "buttonup1", "buttonup2", "laptop", "striped-pocket-tee", "coffee", "phone", "dress", "explaining", "jacket", "gaming", "tank", "hoodie", "killer", "paper", "pointing-up", "polkadot-jacket", "polo-sweater", "shirt-coat", "sporty-tee", "striped-tee", "sweater-dots", "sweater-crossed", "tee1", "tee2", "tee-crossed", "tee-selena", "thunder-tee", "turtleneck", "shrug", ""]
+}
+
+const invisible = `url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")`
+
+const genPeeps = () => {
+
+  const cssData = document.querySelector("#peep-data").value
+  const peepData = {}
+
+  cssData.replace(/  (--[^:]+): ([^;]+);/g, (_, $1, $2) => {
+    peepData[$1] = ($2 === "initial") ? invisible : $2
+    return _
+  })
+
+  let output = ''
+  Object.keys(parts).forEach(part => {
+    output += `
+      @property --peep-${part} {
+        syntax: "${parts[part].slice(0, -1).join("|")}|<url>";
+        initial-value: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
+        inherits: true;
+      }
+      @property --peep-${part}-paint {
+        syntax: "*";
+        initial-value: initial;
+        inherits: true;
+      }
+    `.replace(/^      /gm, "")
+
+    parts[part].slice(0, -1).forEach(item => {
+      output += `\n:where([data-css-peeps~="${item}"]) { --peep-${part}: ${item}; }`
+    })
+
+    output += "\n"
+
+    const maskChain = [`--peep-${part}`]
+    const masks = parts[part].slice(0, -1)
+    do {
+      let item = masks.shift()
+      let iv = `--peep_${item.replace(/-/g, "_")}_mask`
+      if (masks.length) {
+        maskChain.push(iv)
+        output += `
+          @property ${iv} {
+            syntax: "${masks.join("|")}|<url>";
+            initial-value: ${peepData[iv] || invisible};
+            inherits: true;
+          }
+        `.replace(/^          /gm, "")
+      } else {
+        maskChain.push(`--peep-${part}-mask`)
+        output += `
+          @property --peep-${part}-mask {
+            syntax: "<url>"; /* ${item} */
+            initial-value: ${peepData[iv] || invisible};
+            inherits: true;
+          }
+        `.replace(/^          /gm, "")
+      }
+    } while (masks.length)
+
+    const detailChain = [`--peep-${part}`]
+    const details = parts[part].slice(0, -1)
+    do {
+      let item = details.shift()
+      let iv = `--peep_${item.replace(/-/g, "_")}_detail`
+      if (details.length) {
+        detailChain.push(iv)
+        output += `
+          @property ${iv} {
+            syntax: "${details.join("|")}|<url>";
+            initial-value: ${peepData[iv] || invisible};
+            inherits: true;
+          }
+        `.replace(/^          /gm, "")
+      } else {
+        detailChain.push(`--peep-${part}-detail`)
+        output += `
+          @property --peep-${part}-detail {
+            syntax: "<url>"; /* ${item} */
+            initial-value: ${peepData[iv] || invisible};
+            inherits: true;
+          }
+        `.replace(/^          /gm, "")
+      }
+    } while (details.length)
+
+    let partPaintAnim = `\n@keyframes css-peeps-${part}-paint {`
+    const paintChain = [`--peep-${part}`]
+    const paints = parts[part].slice(0, -1)
+    const endex = paints.length - 1
+    do {
+      let item = paints.shift()
+      let iv = `--peep_${item.replace(/-/g, "_")}_paint`
+      let i = endex - paints.length
+      partPaintAnim += `\n  ${i}% { --peep-${part}-paint: ${peepData[iv] || "initial"}; }`
+      if (paints.length) {
+        paintChain.push(iv)
+        output += `
+          @property ${iv} {
+            syntax: "${paints.join("|")}|<integer>";
+            initial-value: ${i};
+            inherits: true;
+          }
+        `.replace(/^          /gm, "")
+      } else {
+        paintChain.push(`--peep-${part}-paint-index`)
+        output += `
+          @property --peep-${part}-paint-index {
+            syntax: "<integer>"; /* ${item} */
+            initial-value: ${i};
+            inherits: true;
+          }
+        `.replace(/^          /gm, "")
+      }
+    } while (paints.length)
+
+    output += partPaintAnim + "\n}\n"
+
+    output += `\n:where([data-css-peeps], .css-peeps) {\n`
+    
+    for (let i = 1; i < maskChain.length; i++) {
+      output += `  ${maskChain[i]}: var(${maskChain[i-1]});\n`
+    }
+    output += "\n"
+    for (let i = 1; i < detailChain.length; i++) {
+      output += `  ${detailChain[i]}: var(${detailChain[i-1]});\n`
+    }
+    output += "\n"
+    for (let i = 1; i < paintChain.length; i++) {
+      output += `  ${paintChain[i]}: var(${paintChain[i-1]});\n`
+    }
+    output += `}\n`
+
+
+    output = output.replace(/^\s+$/gm, "").replace(/\n{3,}/, "\n\n")
+
+  })
+  output += `
+    :where([data-css-peeps], .css-peeps) {
+      animation: ${Object.keys(parts).map(part => {
+        return `css-peeps-${part}-paint
+        1000ms step-end both paused
+        calc(var(--peep-${part}-paint-index) * -10ms - 5ms)`
+      }).join(",\n        ")};
+    }
+  `.replace(/^    /gm, "")
+  document.querySelector("#tg").value = output
+}
+</script>
+
+
+<textarea id="peep-data" onchange="genPeeps()">
+paste this part of css-peeps.compat.css here to generate the type grinding code
+  :where([data-css-peeps]:not([data-css-peeps=""])) {
+    /* optimized Open Peeps SVG Path Data split into layers + css-peeps customizable paint */
+  
+    /* accessories */
+</textarea>
+
+
+<textarea id="tg">
+
+</textarea>

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSS-Peeps | One CSS file | One div | 5 Million Open Peeps Combinations | Infinite Customization</title>
+  <link rel="stylesheet" type="text/css" href="./css-peeps.compat.css">
+
+  <style>
+    @import url(https://unpkg.com/css-peeps@1/css-peeps.compat.css);
+
+    * {
+      box-sizing: border-box;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 1rem;
+    }
+
+    a {
+      color: #7300E6;
+    }
+
+    html,
+    body,
+    main {
+      height: 100vh;
+      overflow: hidden;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 1fr min(50vw, 512px);
+      grid-template-rows: auto 1fr auto;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      position: relative;
+      padding-bottom: 4px;
+      display: flex;
+      align-items: center;
+    }
+    header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      background: linear-gradient(to right, #FC03C2, #7300E6, #87ceeb, #00ff00, #ffd700, #ffa500, #ff0000);
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 0.5rem;
+    }
+    h1 + p {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: 1rem;
+    }
+    #peep-count {
+      color: #fc03c2;
+      font-size: 1.5rem;
+    }
+    .brand {
+      background: url(https://propjockey.io/assets/propjockey.png) center center / auto 95% no-repeat;
+      text-decoration: none;
+      width: 72px;
+      height: 100%;
+      margin-left: auto;
+      margin-right: 0.5rem;
+      font-size: 0px;
+    }
+
+    .drawer {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+    }
+
+    .drawer:not(:hover) > :focus-within,
+    .drawer > :hover {
+      flex-grow: 10;
+    }
+    .part-type {
+      position: absolute;
+      padding: 0.25rem;
+      font-weight: bold;
+      font-size: 1.25rem;
+      color: #fc03c2;
+      text-align: center;
+      width: 100%;
+      border-bottom: 1px solid black;
+      z-index: 9;
+      background: radial-gradient(
+          circle at center, #fc03c2 3px, transparent 3px
+        ) 1% 50% / 10px no-repeat,
+        radial-gradient(
+          circle at center, #fc03c2 3px, transparent 3px
+        ) 99% 50% / 10px no-repeat;
+    }
+    .parts-list {
+      overflow-y: auto;
+      position: absolute;
+      background: white;
+      scrollbar-width: none;
+      top: 1.5rem;
+      bottom: 0px;
+      text-align: center;
+    }
+
+    .parts-list > * {
+      display: inline-block;
+      margin: 0.25rem;
+      width: 150px;
+      padding-top: 115px;
+      padding-bottom: 15px;
+      --ts: 0 0 4px white;
+      text-shadow: var(--ts), var(--ts), var(--ts), var(--ts), var(--ts);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-radius: 1rem;
+    }
+    .parts-list > *:hover,
+    .parts-list > *:focus {
+      background: #eee;
+    }
+    .parts-list::before {
+      content: "";
+      display: block;
+      position: sticky;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      height: 1.25rem;
+      z-index: 9;
+      background: linear-gradient(white 20%, transparent);
+    }
+    .parts-list::after {
+      content: "";
+      display: block;
+      position: sticky;
+      bottom: 0px;
+      left: 0px;
+      right: 0px;
+      height: 1.25rem;
+      z-index: 9;
+      background: linear-gradient(transparent, white 80%);
+    }
+    .head .parts-list > * { --peep-head-offset-x: -10px; --peep-head-offset-y: 27px; --peep-zoom: 1.5; }
+    .face .parts-list > * { --peep-face-offset-x: -45px; --peep-face-offset-y: 45px; --peep-zoom: 3; }
+    .accessories .parts-list > * { --peep-accessory-offset-x: -30px; --peep-accessory-offset-y: 40px; --peep-zoom: 2.5; }
+    .facial-hair .parts-list > * { --peep-facial-hair-offset-x: -30px; --peep-facial-hair-offset-y: 5px; --peep-zoom: 1.9; }
+    .body .parts-list > * { --peep-body-offset-y: -35px; }
+
+    .drawer > * {
+      flex: 1;
+      border: 1px solid black;
+      overflow: hidden;
+      transition: flex-grow 0.2s ease-in;
+      position: relative;
+      scrollbar-width: none;
+    }
+    .parts-list::-webkit-scrollbar,
+    .drawer > *::-webkit-scrollbar {
+      display: none;
+    }
+
+    .peep-part {
+      border: 2px solid transparent;
+    }
+    .part-selected {
+      border-color: #7300E6;
+    }
+    .peep-part:empty::after {
+      content: "<not-set>";
+      text-align: center;
+      width: 100%;
+      padding: 0;
+      top: 75%;
+    }
+
+    .build-a-peep {
+      grid-row: 2;
+      grid-column: 1;
+      position: relative;
+      background: #eee;
+      box-shadow: inset 0 5px 20px rgb(0 0 0 / 45%);
+    }
+
+    .build-a-peep > [data-css-peeps] {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+      min-width: 64px;
+      min-height: 64px;
+      width: 50%;
+      height: 75%;
+      resize: both;
+      background: white;
+      border: 1px solid black;
+      border-radius: 32px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+    :root { accent-color: #FC03C2; }
+    * { outline-color: #FC03C2; }
+    #resize-controls {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+    }
+    #resize-controls:focus {
+      border: 2px solid #FC03C2;
+    }
+
+    /* <3 https://www.youtube.com/shorts/nIJF_oYU_Po */
+    @media (prefers-reduced-motion: no-preference) {
+      :focus-visible {
+        transition: outline-offset 75ms ease-out;
+      }
+      :not(:active):focus-visible {
+        transition-duration: 0.25s;
+      }
+    }
+    :not(:active):focus-visible {
+      outline-offset: 0px;
+    }
+    * {
+      outline-offset: 0.5rem;
+    }
+
+    .transformations {
+      display: flex;
+      gap: 1rem;
+      padding: 0.5rem 0.25rem;
+      border: 1px solid black;
+      white-space: nowrap;
+      flex-wrap: wrap;
+    }
+    .transformations input {
+      display: block;
+      padding: 0.25rem;
+    }
+    .transformations label {
+      display: inline-block;
+    }
+
+    .adjustments {
+      position: relative;
+      grid-row: 3;
+      grid-column: 1;
+    }
+    .adjustments .colors {
+      position: absolute;
+      right: 0px;
+      bottom: 50vh;
+      transform: translateY(50%);
+      display: flex;
+      flex-direction: column;
+    }
+    .adjustments .colors input {
+      cursor: pointer;
+    }
+    .adjustments .colors label {
+      position: relative;
+      padding: 0.25rem;
+    }
+    .adjustments .colors label span {
+      position: absolute;
+      overflow: hidden;
+      width: 0px;
+      right: 100%;
+      top: 0.5rem;
+    }
+    .adjustments .colors:focus-within label span,
+    .adjustments .colors:hover label span {
+      width: auto;
+      white-space: nowrap;
+      text-align: right;
+    }
+    .build-a-peep > [data-css-peeps] {
+      --peep-zoom: var(--handoff_zoom);
+      --peep-rotate: var(--handoff_rotate);
+      --peep-flipped: var(--handoff_flipped);
+      --peep-body-offset-x: var(--handoff_body-offset-x);
+      --peep-body-offset-y: var(--handoff_body-offset-y);
+      --peep-hat-color: var(--handoff_hat-color);
+      --peep-hair-color: var(--handoff_hair-color);
+      --peep-skin-color: var(--handoff_skin-color);
+      --peep-accessory-color: var(--handoff_accessory-color);
+      --peep-facial-hair-color: var(--handoff_facial-hair-color);
+      --peep-object-color: var(--handoff_object-color);
+      --peep-clothes-color: var(--handoff_clothes-color);
+    }
+    .drawer .head .peep-part {
+      --peep-hat-color: var(--handoff_hat-color);
+      --peep-hair-color: var(--handoff_hair-color);
+      --peep-skin-color: var(--handoff_skin-color);
+    }
+    /* .build-a-peep .face .peep-part {} */
+    .drawer .accessories .peep-part {
+      --peep-accessory-color: var(--handoff_accessory-color);
+    }
+    .drawer .facial-hair .peep-part {
+      --peep-facial-hair-color: var(--handoff_facial-hair-color);
+    }
+    .drawer .body .peep-part {
+      --peep-skin-color: var(--handoff_skin-color);
+      --peep-object-color: var(--handoff_object-color);
+      --peep-clothes-color: var(--handoff_clothes-color);
+    }
+
+    /* dev-user's .move-handle api options */
+    .move-handle {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      --mh-handle-size: clamp(30px, 15%, 100px);
+      --mh-line-width: 2px;
+      --mh-arrow-width: clamp(5px, 15%, 8px);
+      --mh-color1: white;
+      --mh-color2: lime;
+      --mh-color1-hov: #FC03C2;
+      --mh-color2-hov: white;
+    }
+
+    /* static .move-handle internals */
+    /* .move-handle:hover, */
+    .move-handle:focus {
+      --mh-color1: var(--mh-color1-hov, white);
+      --mh-color2: var(--mh-color2-hov, hotpink);
+      outline: none;
+      --mh_disp: block;
+    }
+    :focus > .move-handle {
+      display: none;
+    }
+    .move-handle,
+    .move-handle::before {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      cursor: move;
+      transform: translate(-50%, -50%);
+    }
+    .move-handle::before {
+      content: "";
+      display: var(--mh_disp, none);
+      aspect-ratio: 1 / 1;
+      --mh_color1: var(--mh-color1, black);
+      --mh_color2: var(--mh-color2, white);
+      width: var(--mh-handle-size, 50px);
+      --mh_line_width: var(--mh-line-width, 2px) / 2;
+      transform: translate(-50%, -50%) rotateZ(45deg);
+      --mh_line: transparent calc(50% - var(--mh_line_width)),
+        var(--mh_color1) 0px calc(50% + var(--mh_line_width)),
+        transparent 0px;
+      background: radial-gradient(
+        transparent calc(100% - var(--mh-arrow-width, 8px)),
+        var(--mh_color1) 0px
+      ), linear-gradient(
+        45deg, var(--mh_line)
+      ), linear-gradient(
+        -45deg, var(--mh_line)
+      );
+      --mh_ds: drop-shadow(0 0 1px var(--mh_color2));
+      filter: var(--mh_ds) var(--mh_ds) var(--mh_ds);
+    }
+    /* end static .move-handle internals */
+
+    header > nav {
+      position: absolute;
+      top: 50vh;
+      transform: translateY(-50%);
+      left: 0px;
+      z-index: 12;
+    }
+    #shortcuts {
+      overflow: hidden;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 100%;
+      max-width: 0px;
+      transition: max-width 0.125s ease-in, padding 0.125s ease-in;
+      background: white;
+      border-radius: 0.5rem;
+    }
+    #shortcuts::before {
+      content: attr(aria-label);
+      width: 260px;
+      display: block;
+    }
+    #shortcuts:hover,
+    #shortcuts:focus,
+    #shortcuts:focus-within {
+      max-width: 80vw;
+      padding: 1rem;
+      border: 1px solid black;
+    }
+    nav a {
+      display: block;
+      white-space: nowrap;
+      margin: 0.5rem 0px;
+      padding: 0.25rem;
+    }
+
+    nav > nav ~ a :last-child {
+      display: none;
+    }
+    nav > nav ~ a :first-child {
+      display: inline-block;
+      width: 60px;
+      height: 2rem;
+      position: relative;
+    }
+    .open-peeps-icon {
+      --peep-body-offset-y: calc(1rem * 13 / 16);
+      --peep-custom-paint: linear-gradient(white, white);
+    }
+    .docs-link {
+      height: 36px;
+    }
+    .docs-link :first-child {
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .docs-link :first-child::after {
+      content: "API\a" "DOCS";
+      white-space: pre;
+      position: absolute;
+      top: 2px;
+      text-align: center;
+      display: block;
+      width: 100%;
+      font-weight: bold;
+      font-size: 0.85rem;
+      color: #FC03C2;
+      text-decoration: none;
+      text-shadow: 1px 0 1px #FFFFFF, -1px 0 1px #FFFFFF, 0 1px 1px #FFFFFF, 0 -1px 1px #FFFFFF;
+    }
+
+    .transformations button {
+      background: white;
+      color: #FC03C2;
+      border: 1px solid #FC03C2;
+      border-radius: 0.25rem;
+      padding: 0.25rem;
+      cursor: pointer;
+    }
+    .transformations button:hover {
+      background: #f8f8f8;
+    }
+
+    .sticker {
+      --follow-5t3ph: url(https://codepen.io/5t3ph/pen/mdVZYpr?editors=1100);
+      display: inline-grid;
+      grid-template-areas: "text";
+      place-items: center;
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      white-space: pre;
+      filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.25));
+      line-height: 1.2;
+      font-size: 0;
+    }
+    .sticker::before, .sticker::after {
+      content: attr(data-text);
+      grid-area: text;
+      font-size: 2rem;
+      white-space: pre;
+    }
+    .sticker::before {
+      -webkit-text-stroke: 0.21em white;
+      background: no-repeat linear-gradient(white, white) 44% 55% / 90% 58%;
+    }
+    .sticker::after {
+      background: linear-gradient(to left, #FC03C2, #7300E6, #87ceeb, #00ff00, #ffd700, #ffa500, #ff0000);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: 1.5px black;
+    }
+
+    #export-options {
+      grid-row: 2 / span 2;
+      grid-column: 1 / span 2;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(0.25rem);
+      z-index: 10;
+      display: grid;
+    }
+    #export-options:not(:target) {
+      display: none;
+    }
+    #export-options section {
+      margin: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #export-options h2,
+    #export-options p {
+      width: clamp(500px, 75vw, 100%);
+      text-align: center;
+      margin: auto;
+      padding: 1rem;
+    }
+
+    .export-table {
+      width: clamp(500px, 75vw, 100%);
+      margin: auto;
+      display: grid;
+      grid-template-columns: auto 1fr 150px;
+      grid-template-rows: repeat(3, 1fr);
+      row-gap: 0.25rem;
+    }
+    .export-table button,
+    .export-table > * {
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .export-table a:first-of-type {
+      grid-row-end: span 2;
+    }
+    .export-table a {
+      border: 1px solid #FC03C2;
+      background-color: #FC03C2;
+      color: white;
+      text-decoration: none;
+      border-top-left-radius: 0.25rem;
+      border-bottom-left-radius: 0.25rem;
+      text-align: center;
+    }
+    .option-description {
+      border: 1px solid #FC03C2;
+      border-left: none;
+      border-right: none;
+    }
+    .option-choices {
+      border: 1px solid #FC03C2;
+      border-left: none;
+      border-top-right-radius: 0.25rem;
+      border-bottom-right-radius: 0.25rem;
+    }
+    .option-choices button {
+      background: #FC03C2;
+      color: white;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      border: 1px solid #FC03C2;
+    }
+    
+    .export-table a:focus,
+    .export-table a:hover,
+    .option-choices button:focus,
+    .option-choices button:hover {
+      color: #FC03C2;
+      background: white;
+    }
+
+    .close-button {
+      margin-left: auto;
+      color: #FC03C2;
+      background: white;
+      border: 1px solid #FC03C2;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      padding: 0.5rem;
+      display: inline-block;
+    }
+
+    .export-link {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      color: #FC03C2;
+      font-size: 2rem;
+      font-weight: bold;
+      text-decoration: none;
+      z-index: 9;
+    }
+
+    #docs {
+      grid-row: 2 / span 2;
+      grid-column: 1 / span 2;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(0.25rem);
+      z-index: 10;
+    }
+    #docs:not(:target) {
+      display: none;
+    }
+    @media (max-width: 1024px) {
+      :root {
+        font-size: 10px;
+      }
+      .open-peeps-icon {
+        --peep-zoom: calc(13 / 16);
+      }
+      main {
+        grid-template-columns: 1fr 40vw;
+      }
+    }
+    @media (max-width: 712px) {
+      #docs:not(:target) {
+        display: block;
+      }
+      .build-a-peep,
+      .drawer,
+      .adjustments,
+      #export-options,
+      #docs .close-button {
+        display: none;
+      }
+    }
+  </style>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146833088-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-146833088-1');
+  </script>
+
+  <script type="module">
+    import sheet, { mount } from 'https://cdn.corset.dev/v2'
+    const peepResize = document.querySelector("#resize-controls")
+
+    let dragToggle = false
+
+    mount(document, class {
+      constructor(props, { rebind }) {
+        this.rebind = rebind
+        document.querySelector("main").style = this.buildStyleHandoff()
+      }
+
+      rand = (arr) => arr[~~(Math.random() * arr.length)]
+      heads = ["afro", "bangs1", "bangs2", "bantu-knots", "teddy", "bun1", "bun2", "buns", "cornrows1", "cornrows2", "flat-top1", "flat-top2", "gray-bun", "gray-medium", "gray-short", "beanie", "sierra", "hijab", "long-afro", "long-bangs", "long-curly", "long-straight", "medium1", "medium2", "medium3", "medium-bangs1", "medium-bangs2", "medium-bangs3", "medium-straight", "mohawk1", "mohawk2", "bald1", "bald2", "bald3", "pomp", "shaved1", "shaved2", "shaved3", "short1", "short2", "short3", "short4", "short5", "turban", "twists1", "twists2", ""]
+      faces = ["awe", "talking", "smile", "smile-big", "laughing", "smile-gap", "calm", "blank", "cheeky", "serious", "concerned-fear", "gasp", "peace", "cute", "cyclops", "fangry", "monster", "driven", "eating-happy", "eyes-closed", "fear", "hectic", "loving-grin1", "loving-grin2", "old", "rage", "sad", "suspicious", "tired", "angry", ""]
+      accessories = ["eyepatch", "glasses1", "glasses2", "glasses3", "glasses4", "glasses5", "sunglasses1", "sunglasses2", ""]
+      facialHair = ["chinhair", "beard1", "beard2", "beard3", "beard4", "goatee1", "goatee2", "mustache1", "mustache2", "mustache3", "mustache4", "mustache5", "mustache6", "mustache7", "mustache8", "mustache9", ""]
+      bodies = ["blazer", "buttonup1", "buttonup2", "laptop", "striped-pocket-tee", "coffee", "phone", "dress", "explaining", "jacket", "gaming", "tank", "hoodie", "killer", "paper", "pointing-up", "polkadot-jacket", "polo-sweater", "shirt-coat", "sporty-tee", "striped-tee", "sweater-dots", "sweater-crossed", "tee1", "tee2", "tee-crossed", "tee-selena", "thunder-tee", "turtleneck", "shrug", ""]
+
+      config = {
+        head: this.rand(this.heads),
+        face: this.rand(this.faces),
+        accessory: this.rand(this.accessories),
+        facialHair: this.rand(this.facialHair),
+        body: this.rand(this.bodies)
+      }
+
+      customization = {
+        /* transformations */
+        "zoom": "1",
+        "rotate": "0",
+        "flipped": "0",
+        "body-offset-x": "0",
+        "body-offset-y": "0",
+        /* colors */
+        "hat-color": "#FC03C2",
+        "hair-color": "#7300E6",
+        "skin-color": "#87ceeb",
+        "accessory-color": "#00ff00",
+        "facial-hair-color": "#ffd700",
+        "object-color": "#ffa500",
+        "clothes-color": "#ff0000"
+      }
+
+      buildStyleHandoff () {
+        const opts = this.customization
+        const style = `
+          --handoff_zoom: ${opts["zoom"]};
+          --handoff_rotate: ${opts["rotate"] + "deg"};
+          --handoff_flipped: ${opts["flipped"]};
+          --handoff_body-offset-x: ${opts["body-offset-x"] + "px"};
+          --handoff_body-offset-y: ${opts["body-offset-y"] + "px"};
+          --handoff_hat-color: ${opts["hat-color"]};
+          --handoff_hair-color: ${opts["hair-color"]};
+          --handoff_skin-color: ${opts["skin-color"]};
+          --handoff_accessory-color: ${opts["accessory-color"]};
+          --handoff_facial-hair-color: ${opts["facial-hair-color"]};
+          --handoff_object-color: ${opts["object-color"]};
+          --handoff_clothes-color: ${opts["clothes-color"]};
+        `
+        return style
+      }
+
+      resetTransforms () {
+        const defaults = {
+          "zoom": "1",
+          "rotate": "0",
+          "flipped": "0",
+          "body-offset-x": "0",
+          "body-offset-y": "0"
+        }
+        Object.assign(this.customization, defaults)
+        Object.keys(defaults).forEach(i => document.getElementById(i).value = defaults[i])
+        document.querySelector("main").style = this.buildStyleHandoff()
+      }
+
+      debounce = (fn, ms) => {
+        let timeout
+        return (...args) => {
+          clearTimeout(timeout)
+          timeout = setTimeout(() => fn.apply(this, args), ms || 100)
+        }
+      }
+
+      throttle = (fn, ms) => {
+        let activeArgs
+        const cb = () => {
+          fn.apply(this, activeArgs)
+          activeArgs = undefined
+        }
+        return (...args) => {
+          activeArgs || setTimeout(cb, ms || 100)
+          activeArgs = args
+        }
+      }
+
+      valueToPropFromId = ev => {
+        this.customization[ev.target.id] = ev.target.value
+        document.querySelector("main").style = this.buildStyleHandoff()
+      }
+
+      throttledValueToPropFromId = this.throttle(this.valueToPropFromId, 250)
+
+      throttledReposition = this.throttle(ev => {
+        if (!dragToggle) {
+          return
+        }
+        const customization = this.customization
+        customization["body-offset-x"] = parseFloat(customization["body-offset-x"]) + (ev.x - dragToggle.x)
+        customization["body-offset-y"] = parseFloat(customization["body-offset-y"]) + (ev.y - dragToggle.y)
+        dragToggle.x = ev.x
+        dragToggle.y = ev.y
+        document.querySelector("main").style = this.buildStyleHandoff()
+        document.querySelector("#body-offset-x").value = customization["body-offset-x"]
+        document.querySelector("#body-offset-y").value = customization["body-offset-y"]
+      }, 50)
+
+      dragStart = ev => {
+        dragToggle = { x: ev.x, y: ev.y }
+      }
+
+      moveHandleKeys = ev => {
+        ev.stopPropagation()
+        const customization = this.customization
+        const delta = ev.shiftKey ? 1 : 10
+        const { offsetWidth, offsetHeight } = peepResize
+        switch (ev.keyCode) {
+          case 38: { // up
+            customization["body-offset-y"] = parseFloat(customization["body-offset-y"]) - delta
+            break;
+          } case 40: { // down
+            customization["body-offset-y"] = parseFloat(customization["body-offset-y"]) + delta
+            break;
+          } case 37: { // left
+            customization["body-offset-x"] = parseFloat(customization["body-offset-x"]) - delta
+            break;
+          } case 39: { // right
+            customization["body-offset-x"] = parseFloat(customization["body-offset-x"]) + delta
+            break;
+          }
+        }
+        document.querySelector("main").style = this.buildStyleHandoff()
+        document.querySelector("#body-offset-x").value = customization["body-offset-x"]
+        document.querySelector("#body-offset-y").value = customization["body-offset-y"]
+      }
+
+      bind () {
+        const { config } = this
+        return sheet`
+          body {
+            --ssv: ${(...args) => args.join(" ").replace(/ +/g, " ")};
+          }
+          #peep-count {
+            --peep-count: ${this.heads.length * this.faces.length * this.facialHair.length * this.accessories.length * this.bodies.length};
+          }
+          .head .parts-list { each-items: ${this.heads}; --part-key: head; }
+          .face .parts-list { each-items: ${this.faces}; --part-key: face; }
+          .facial-hair .parts-list { each-items: ${this.facialHair}; --part-key: facialHair; }
+          .accessories .parts-list { each-items: ${this.accessories}; --part-key: accessory; }
+          .body .parts-list { each-items: ${this.bodies}; --part-key: body; }
+          .parts-list { each-template: select(#peep-part); }
+          .peep-part {
+            --part: item();
+            text: var(--part);
+            attr: data-css-peeps var(--part);
+            --is-selected: ${(opt, val) => config[opt] === val};
+            class-toggle: "part-selected" --is-selected(var(--part-key), var(--part));
+            event: click bind(${(opt, val) => config[opt] = (config[opt] === val) ? "" : val}, var(--part-key), var(--part));
+          }
+          .build-a-peep > [data-css-peeps] {
+            --head: ${config.head};
+            --face: ${config.face};
+            --facialHair: ${config.facialHair};
+            --accessory: ${config.accessory};
+            --body: ${config.body};
+            attr: data-css-peeps --ssv(
+              var(--head), var(--face), var(--facialHair), var(--accessory), var(--body)
+            );
+          }
+          .adjustments .colors input {
+            event: input ${this.throttledValueToPropFromId};
+          }
+          .adjustments .transformations input {
+            event: input ${this.valueToPropFromId};
+          }
+          .adjustments .transformations button {
+            event: click ${this.resetTransforms};
+          }
+          .move-handle {
+            event: keydown ${this.moveHandleKeys};
+            event: pointerdown ${this.dragStart};
+            event: pointermove ${this.throttledReposition};
+          }
+        `;
+      }
+    })
+
+    document.addEventListener("pointerup", ev => dragToggle = false)
+    document.addEventListener("pointerout", ev => dragToggle = false)
+    document.addEventListener("keypress", ev => ev.keyCode === 47 && document.getElementById("shortcuts").focus())
+    peepResize.addEventListener("keydown", ev => {
+      const delta = ev.shiftKey ? 1 : 10
+      const { offsetWidth, offsetHeight } = peepResize
+      switch (ev.keyCode) {
+        case 38: { // up
+          peepResize.parentNode.style.height = offsetHeight - delta + "px"
+          break;
+        } case 40: { // down
+          peepResize.parentNode.style.height = offsetHeight + delta + "px"
+          break;
+        } case 37: { // left
+          peepResize.parentNode.style.width = offsetWidth - delta + "px"
+          break;
+        } case 39: { // right
+          peepResize.parentNode.style.width = offsetWidth + delta + "px"
+          break;
+        }
+      }
+    })
+  </script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 class="sticker" data-text="CSS-Peeps ">CSS-Peeps</h1>
+      <p>One CSS File &nbsp;:&nbsp; One &lt;div&gt; &nbsp;:&nbsp; <span id="peep-count">5 MILLION</span> Open Peeps Combinations &nbsp;:&nbsp; Infinite Customization</p>
+      <a class="brand" href="https://propjockey.io/" title="by Jane Ori from PropJockey - the value of properties, orchestrated.">
+        by Jane Ori from PropJockey
+      </a>
+      <nav>
+        <nav aria-keyshortcuts="/" tabindex="0" id="shortcuts" aria-label="Access this page jumps menu any time by pressing forward slash '/'">
+          <a href="#first-external-link">Resource Links</a>
+          <a href="#heads-list">Heads</a>
+          <a href="#faces-list">Faces</a>
+          <a href="#accessories-list">Accessories</a>
+          <a href="#facial-hair-list">Facial Hairs</a>
+          <a href="#bodies-list">Bodies</a>
+          <a href="#color-options">Color Options</a>
+          <a href="#transform-options">Transform Options</a>
+          <a href="#resize-controls">Resize and Position Controls</a>
+          <a href="#export-options">Code Export Options</a>
+        </nav>
+        <a class="docs-link" href="#docs" title="View the CSS-Peeps API Documentation">
+          <span></span>
+          <span>Documentation</span>
+        </a>
+        <a href="https://www.npmjs.com/package/css-peeps" id="first-external-link" title="Visit CSS-Peeps on NPM!">
+          <svg style="height: 1.25rem; margin-left: 0.5rem; margin-top: 0.75rem;" viewBox="0 0 905 290"><path fill="#FC03C2" d="M240,250h100v-50h100V0H240V250z M340,50h50v100h-50V50z M480,0v200h100V50h50v150h50V50h50v150h50V0H480z M0,200h100V50h50v150h50V0H0V200z"></path></svg>
+          <span>NPM</span>
+        </a>
+        <a href="https://github.com/propjockey/css-peeps" title="Leave a STAR for CSS-Peeps on GitHub!">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 34 34"><path fill="#FC03C2" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" class="astro-ARhyM7ha"></path></svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://twitter.com/jane0ri" title="Follow the author of CSS-Peeps on Twitter @Jane0ri!">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -15 400 385"><path fill="#FC03C2" d="M153.62,301.59c94.34,0,145.94-78.16,145.94-145.94,0-2.22,0-4.43-.15-6.63A104.36,104.36,0,0,0,325,122.47a102.38,102.38,0,0,1-29.46,8.07,51.47,51.47,0,0,0,22.55-28.37,102.79,102.79,0,0,1-32.57,12.45,51.34,51.34,0,0,0-87.41,46.78A145.62,145.62,0,0,1,92.4,107.81a51.33,51.33,0,0,0,15.88,68.47A50.91,50.91,0,0,1,85,169.86c0,.21,0,.43,0,.65a51.31,51.31,0,0,0,41.15,50.28,51.21,51.21,0,0,1-23.16.88,51.35,51.35,0,0,0,47.92,35.62,102.92,102.92,0,0,1-63.7,22A104.41,104.41,0,0,1,75,278.55a145.21,145.21,0,0,0,78.62,23" class="astro-lcj5xD8w"></path></svg>
+          <span>Twitter</span>
+        </a>
+        <a href="https://www.openpeeps.com/" title="Check out Open Peeps, the character line art used in CSS-Peeps!">
+          <span class="open-peeps-icon" data-css-peeps="bun2 smile turtleneck"></span>
+          <span>Open Peeps</span>
+        </a>
+      </nav>
+    </header>
+    <div class="build-a-peep">
+      <div data-css-peeps="glasses4 hijab smile glasses2 blazer">
+        <div id="resize-controls" tabindex="0" aria-label="Use the Arrow Keys to resize your CSS-Peeps character"></div>
+        <div class="move-handle" tabindex="0" aria-label="Use the Arrow Keys to position your CSS-Peeps character"></div>
+        <a class="export-link" href="#export-options" title="Export your CSS-Peep's code!">&lt;/&gt;</a>
+      </div>
+    </div>
+    <div class="drawer">
+      <div class="head">
+        <span class="part-type" id="heads-list" tabindex="0">Heads</span>
+        <div class="parts-list"></div>
+      </div>
+      <div class="face">
+        <span class="part-type" id="faces-list" tabindex="0">Faces</span>
+        <div class="parts-list"></div>
+      </div>
+      <div class="accessories">
+        <span class="part-type" id="accessories-list" tabindex="0">Accessories</span>
+        <div class="parts-list"></div>
+      </div>
+      <div class="facial-hair">
+        <span class="part-type" id="facial-hair-list" tabindex="0">Facial Hair</span>
+        <div class="parts-list"></div>
+      </div>
+      <div class="body">
+        <span class="part-type" id="bodies-list" tabindex="0">Bodies</span>
+        <div class="parts-list"></div>
+      </div>
+    </div>
+    <div class="adjustments">
+      <div class="colors" id="color-options" tabindex="0">
+        <label><span>--peep-hat-color:</span> <input id="hat-color" type="color" value="#FC03C2"></label>
+        <label><span>--peep-hair-color:</span> <input id="hair-color" type="color" value="#7300E6"></label>
+        <label><span>--peep-skin-color:</span> <input id="skin-color" type="color" value="#87ceeb"></label>
+        <label><span>--peep-accessory-color:</span> <input id="accessory-color" type="color" value="#00ff00"></label>
+        <label><span>--peep-facial-hair-color:</span> <input id="facial-hair-color" type="color" value="#ffd700"></label>
+        <label><span>--peep-object-color:</span> <input id="object-color" type="color" value="#ffa500"></label>
+        <label><span>--peep-clothes-color:</span> <input id="clothes-color" type="color" value="#ff0000"></label>
+      </div>
+      <div class="transformations" id="transform-options" tabindex="0">
+        <label>--peep-zoom: <input id="zoom" type="range" min="1" max="4" value="1" step="0.1"></label>
+        <label>--peep-rotate: <input id="rotate" type="range" min="0" max="360" value="0" step="1"></label>
+        <label>--peep-flipped: <input id="flipped" type="range" min="0" max="1" value="0" step="1"></label>
+        <label>--peep-body-offset-x: <input id="body-offset-x" type="range" min="-150" max="150" value="0" step="1"></label>
+        <label>--peep-body-offset-y: <input id="body-offset-y" type="range" min="-150" max="150" value="0" step="1"></label>
+        <button>Reset Transforms</button>
+      </div>
+    </div>
+    <div id="export-options">
+      <section>
+        <h2>Build-a-Peep Export Options</h2>
+        <div class="export-table">
+          <a href="https://caniuse.com/mdn-css_at-rules_property" target="_blank" class="support">
+            <span>
+              @property supported API<br>
+              (<b>~72.95%</b> of global users)
+            </span>
+          </a>
+
+          <div class="option-description">
+            ✨ Variant options set in CSS ✨
+          </div>
+          <div class="option-choices">
+            <button aria-label="Show Peep code with @property supported API using custom properties in CodePen">CodePen [↗]</button>
+            <!--button>View Code</button-->
+          </div>
+
+          <div class="option-description">
+            Variant options set in HTML
+          </div>
+          <div class="option-choices">
+            <button aria-label="Show Peep code with @property supported API using data attribute values in CodePen">CodePen [↗]</button>
+            <!--button>View Code</button-->
+          </div>
+          
+          <a href="https://caniuse.com/mdn-css_selectors_where" target="_blank" class="support">
+            <span>
+              Compatibility focused API<br>
+              (<b>~92.33%</b> of global users)
+            </span>
+          </a>
+          <div class="option-description">
+            Variant options set in HTML
+          </div>
+          <div class="option-choices">
+            <button aria-label="Show Peep code on CodePen using data attributes and the compatibility focused API">CodePen [↗]</button>
+            <!--button>View Code</button-->
+          </div>
+        </div>
+        <p>(Note: CSS-Peeps only requires a single CSS file and is less than 1/10th of Twitter's max gif size)</p>
+        <a class="close-button" href="#">Cancel, Keep Editing</a>
+      </section>
+    </div>
+    <div id="docs">
+      API Docs Coming Soon!<br>
+      Build-A-Peep only available on desktop (for now!)<br>
+      <a class="close-button" href="#">Cancel, Keep Editing</a>
+    </div>
+  </main>
+
+  <template id="peep-part"><button class="peep-part" data-css-peeps></button></template>
+
+
+  <textarea style="display: none;">
+    // super advanced peeps optimization alogorithm
+    $0.value = x.replace(/.(d{3,})/g, (_, decimal) => {
+      var y = parseFloat("0." + decimal).toFixed(3).replace("0.", "").replace(/0+$/, "").replace("1.", "9995")
+      return y ? "." + y : ""
+    })
+
+    docs
+    aspect-ratio: 240 / 324; // suggested aspect ratio
+
+    --peep-zoom: 1;
+    --peep-rotate: 0deg;
+
+    --peep-accessory-offset-x: 0px;
+    --peep-accessory-offset-y: 0px;
+    --peep-facial-hair-offset-x: 0px;
+    --peep-facial-hair-offset-y: 0px;
+    --peep-face-offset-x: 0px;
+    --peep-face-offset-y: 0px;
+    --peep-head-offset-x: 0px;
+    --peep-head-offset-y: 0px;
+    --peep-body-offset-x: 0px;
+    --peep-body-offset-y: 0px;
+
+    add extra stuff to the bg above the default layers, below the black lines
+    --peep-custom-paint
+
+    --peep-hat-color: #7300E6;
+    --peep-hair-color: #FC03C2;
+    --peep-skin-color: #7D567E;
+    --peep-accessory-color: #D3914E;
+    --peep-facial-hair-color: #FC03C2;
+    --peep-object-color: #FFFFFF;
+    --peep-clothes-color: #7300E6;
+
+    /* incomplete implementation, will change, do not use yet: */
+    --peep-head-scale: 1;
+    --peep-face-scale: 1;
+    --peep-facial-hair-scale: 1;
+    --peep-accessory-scale: 1;
+  </textarea>
+
+</body>
+</html>

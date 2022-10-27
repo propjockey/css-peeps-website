@@ -1,0 +1,24 @@
+{
+  "name": "css-peeps-website",
+  "version": "1.0.0",
+  "description": "CSS-Peeps builder and documentation",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/propjockey/css-peeps-website.git"
+  },
+  "keywords": [
+    "CSS-Peeps",
+    "Open Peeps",
+    "CSS"
+  ],
+  "author": "Jane Ori",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/propjockey/css-peeps-website/issues"
+  },
+  "homepage": "https://github.com/propjockey/css-peeps-website#readme"
+}
