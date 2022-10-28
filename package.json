@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/propjockey/css-peeps-website/issues"
   },
-  "homepage": "https://github.com/propjockey/css-peeps-website#readme"
+  "homepage": "https://css-peeps.com",
+  "dependencies": {
+    "css-peeps": "^1.0.0"
+  }
 }

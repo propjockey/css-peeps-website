@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CSS-Peeps | One CSS file | One div | 5 Million Open Peeps Combinations | Infinite Customization</title>
-  <link rel="stylesheet" type="text/css" href="./css-peeps.compat.css">
 
   <style>
     @import url(https://unpkg.com/css-peeps@1/css-peeps.compat.css);
@@ -526,6 +525,9 @@
       grid-template-rows: repeat(3, 1fr);
       row-gap: 0.25rem;
     }
+    .export-table > * {
+      background: white;
+    }
     .export-table button,
     .export-table > * {
       padding: 0.5rem;
@@ -600,9 +602,31 @@
       background-color: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(0.25rem);
       z-index: 10;
+      overflow-y: auto;
+      padding: 1rem;
+      position: relative;
+      display: grid;
     }
     #docs:not(:target) {
       display: none;
+    }
+    #docs h2 {
+      font-size: 2rem;
+      text-align: center;
+    }
+    #docs section {
+      padding: 1rem;
+      border: 1px solid #FC03C2;
+      border-radius: 0.25rem;
+      width: max(min(80%, 850px), 50vw);
+      margin: 2rem auto;
+      background: white;
+      box-shadow: 0 0 1rem rgb(0 0 0 / 0.25);
+    }
+    #docs .close-button {
+      position: sticky;
+      top: 1rem;
+      right: 1rem;
     }
     @media (max-width: 1024px) {
       :root {
@@ -654,8 +678,8 @@
         const codepenform = document.forms["codepenform"]
         const codpenData = {
           editors: "110", // hide js panel
-          html: html.replace(/^          /gm, ""),
-          css: css.replace(/^          /gm, ""),
+          html: html.replace(/^          /gm, "").replace(/\n{3,}/g, "\n\n").trim(),
+          css: css.replace(/^          /gm, "").replace(/\n{3,}/g, "\n\n").trim(),
           js: "// CSS-Peeps does not use JS! <3",
           title: "My CSS-Peeps Character!",
           layout: "left",
@@ -666,118 +690,75 @@
         return false
       }
 
-      codepenTypeGrinding = function () {
+      commonExportCSS = function () {
         const { offsetWidth, offsetHeight } = peepResize
         const opts = this.customization
+        return `--peep-hat-color: ${opts["hat-color"]};
+          --peep-hair-color: ${opts["hair-color"]};
+          --peep-skin-color: ${opts["skin-color"]};
+          --peep-accessory-color: ${opts["accessory-color"]};
+          --peep-facial-hair-color: ${opts["facial-hair-color"]};
+          --peep-object-color: ${opts["object-color"]};
+          --peep-clothes-color: ${opts["clothes-color"]};
+
+          ${opts["zoom"] !== "1" ? `--peep-zoom: ${opts["zoom"]};` : ""}
+          ${opts["rotate"] !== "0" ? `--peep-rotate: ${opts["rotate"] + "deg"};` : ""}
+          ${opts["flipped"] !== "0" ? `--peep-flipped: ${opts["flipped"]};` : ""}
+          ${opts["body-offset-x"] !== "0" ? `--peep-body-offset-x: ${opts["body-offset-x"] + "px"};` : ""}
+          ${opts["body-offset-y"] !== "0" ? `--peep-body-offset-y: ${opts["body-offset-y"] + "px"};` : ""}
+
+          display: inline-block;
+          width: ${offsetWidth}px;
+          height: ${offsetHeight}px;
+          background: white;
+          border-radius: 10px;
+          border: 2px solid var(--peep-accessory-color);
+        `.replace(/^        /gm, "").trim().replace(/^ +$/gm, "").replace(/\n{3,}/g, "\n\n")
+      }
+
+      codepenTypeGrinding = function () {
         const config = this.config
         const cfgCSS = `
             --peep-head: ${config.head};
             --peep-face: ${config.face};
             --peep-accessory: ${config.accessory};
             --peep-facial-hair: ${config.facialHair};
-            --peep-body: ${config.body};
-        `.replace(/\n\s+[^:]+: ;/g, "")
+            --peep-body: ${config.body};`.replace(/\n\s+[^:]+: ;/g, "")
         const css = `
           @import url(https://unpkg.com/css-peeps@1/css-peeps.css);
 
           a {${cfgCSS}
 
-            --peep-hat-color: ${opts["hat-color"]};
-            --peep-hair-color: ${opts["hair-color"]};
-            --peep-skin-color: ${opts["skin-color"]};
-            --peep-accessory-color: ${opts["accessory-color"]};
-            --peep-facial-hair-color: ${opts["facial-hair-color"]};
-            --peep-object-color: ${opts["object-color"]};
-            --peep-clothes-color: ${opts["clothes-color"]};
-
-            --peep-zoom: ${opts["zoom"]};
-            --peep-rotate: ${opts["rotate"] + "deg"};
-            --peep-flipped: ${opts["flipped"]};
-            --peep-body-offset-x: ${opts["body-offset-x"] + "px"};
-            --peep-body-offset-y: ${opts["body-offset-y"] + "px"};
-
-            display: inline-block;
-            width: ${offsetWidth}px;
-            height: ${offsetHeight}px;
-            background: white;
-            border-radius: 10px;
-            border: 2px solid var(--peep-accessory-color);
+            ${this.commonExportCSS()}
           }
         `
         const html = `
-          <a class="css-peeps" href="https://css-peeps.com/"></a>
+          <a class="css-peeps" href="https://css-peeps.com/" target="_blank"></a>
+        `
+        this.postToCodepen(css, html)
+      }
+      dataAttrExport = function (url) {
+        const config = this.config
+        const css =  `
+          @import url(${url});
+
+          a {
+            ${this.commonExportCSS()}
+          }
+        `
+        const html = `
+          <a href="https://css-peeps.com/"
+            data-css-peeps="${Object.keys(config).map(p => config[p]).filter(p => p).join(" ")}"
+            target="_blank"
+          ></a>
         `
         this.postToCodepen(css, html)
       }
       codepenBackwardsCompat = function () {
-        const { offsetWidth, offsetHeight } = peepResize
-        const opts = this.customization
-        const config = this.config
-        const css =  `
-          @import url(https://unpkg.com/css-peeps@1/css-peeps.css);
-
-          a {
-            --peep-hat-color: ${opts["hat-color"]};
-            --peep-hair-color: ${opts["hair-color"]};
-            --peep-skin-color: ${opts["skin-color"]};
-            --peep-accessory-color: ${opts["accessory-color"]};
-            --peep-facial-hair-color: ${opts["facial-hair-color"]};
-            --peep-object-color: ${opts["object-color"]};
-            --peep-clothes-color: ${opts["clothes-color"]};
-
-            --peep-zoom: ${opts["zoom"]};
-            --peep-rotate: ${opts["rotate"] + "deg"};
-            --peep-flipped: ${opts["flipped"]};
-            --peep-body-offset-x: ${opts["body-offset-x"] + "px"};
-            --peep-body-offset-y: ${opts["body-offset-y"] + "px"};
-
-            display: inline-block;
-            width: ${offsetWidth}px;
-            height: ${offsetHeight}px;
-            background: white;
-            border-radius: 10px;
-            border: 2px solid var(--peep-accessory-color);
-          }
-        `
-        const html = `
-          <a href="https://css-peeps.com/" data-css-peeps="${Object.keys(config).map(p => config[p]).filter(p => p).join(" ")}"></a>
-        `
-        this.postToCodepen(css, html)
+        this.dataAttrExport("https://unpkg.com/css-peeps@1/css-peeps.css")
       }
       codepenCompatApi = function () {
-        const { offsetWidth, offsetHeight } = peepResize
-        const opts = this.customization
-        const config = this.config
-        const css =  `
-          @import url(https://unpkg.com/css-peeps@1/css-peeps.compat.css);
-
-          a {
-            --peep-hat-color: ${opts["hat-color"]};
-            --peep-hair-color: ${opts["hair-color"]};
-            --peep-skin-color: ${opts["skin-color"]};
-            --peep-accessory-color: ${opts["accessory-color"]};
-            --peep-facial-hair-color: ${opts["facial-hair-color"]};
-            --peep-object-color: ${opts["object-color"]};
-            --peep-clothes-color: ${opts["clothes-color"]};
-
-            --peep-zoom: ${opts["zoom"]};
-            --peep-rotate: ${opts["rotate"] + "deg"};
-            --peep-flipped: ${opts["flipped"]};
-            --peep-body-offset-x: ${opts["body-offset-x"] + "px"};
-            --peep-body-offset-y: ${opts["body-offset-y"] + "px"};
-
-            display: inline-block;
-            width: ${offsetWidth}px;
-            height: ${offsetHeight}px;
-            background: white;
-            border-radius: 10px;
-            border: 2px solid var(--peep-accessory-color);
-          }
-        `
-        const html = `
-          <a href="https://css-peeps.com/" data-css-peeps="${Object.keys(config).map(p => config[p]).filter(p => p).join(" ")}"></a>
-        `
-        this.postToCodepen(css, html)
+        this.dataAttrExport("https://unpkg.com/css-peeps@1/css-peeps.compat.css")
       }
 
       rand = (arr) => arr[~~(Math.random() * arr.length)]
@@ -1130,13 +1111,66 @@
           </div>
         </div>
         <p>(Note: CSS-Peeps only requires a single CSS file and is less than 1/10th of Twitter's max gif size)</p>
-        <a class="close-button" href="#">Cancel, Keep Editing</a>
+        <a class="close-button" href="#">Return to Build-a-Peep</a>
       </section>
     </div>
     <div id="docs">
-      API Docs Coming Soon!<br>
-      Build-A-Peep only available on desktop (for now!)<br>
-      <a class="close-button" href="#">Cancel, Keep Editing</a>
+      <a class="close-button" href="#">Return to Build-a-Peep</a>
+      <h2>CSS-Peeps API Docs</h2>
+      <section>
+        (documentation improving soon, just getting it out the door! &lt;3)<br>
+        install<br>
+        <br>
+        see readme
+      </section>
+      <section>
+        Build-A-Peep only available on desktop (for now!)<br>
+        <br>
+        The <a href="https://www.bitovi.com/blog/css-only-type-grinding-casting-tokens-into-useful-values">Type Grinding</a> API allows easily swapping variants on :hover!<br>
+        <br>
+        <div>
+          <p class="codepen" data-height="542.6666259765625" data-theme-id="40148" data-default-tab="css,result" data-slug-hash="ZERGWWq" data-user="propjockey" style="height: 542.6666259765625px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+            <span>See the Pen <a href="https://codepen.io/propjockey/pen/ZERGWWq">
+            Peep Hulk (:hover, :focus) - CSS-Peeps</a> by Jane Ori 💜 (<a href="https://codepen.io/propjockey">@propjockey</a>)
+            on <a href="https://codepen.io">CodePen</a>.</span>
+          </p>
+          <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+        </div>
+        <br>
+      </section>
+      <section>
+        --peep-flipped: 0; &lt;number [0,1]><br>
+        <br>
+        --peep-zoom: 1; &lt;number><br>
+        --peep-rotate: 0deg; &lt;angle><br>
+        <br>
+        --peep-accessory-offset-x: 0px; &lt;length><br>
+        --peep-accessory-offset-y: 0px; &lt;length><br>
+        --peep-facial-hair-offset-x: 0px; &lt;length><br>
+        --peep-facial-hair-offset-y: 0px; &lt;length><br>
+        --peep-face-offset-x: 0px; &lt;length><br>
+        --peep-face-offset-y: 0px; &lt;length><br>
+        --peep-head-offset-x: 0px; &lt;length><br>
+        --peep-head-offset-y: 0px; &lt;length><br>
+        --peep-body-offset-x: 0px; &lt;length><br>
+        --peep-body-offset-y: 0px; &lt;length><br>
+        <br>
+        add extra &lt;background> layers above the default color layers, below the black lines:<br>
+        --peep-custom-paint: initial;<br>
+        <br>
+        --peep-hat-color: #FC03C2; &lt;color><br>
+        --peep-hair-color: #7300E6; &lt;color><br>
+        --peep-skin-color: #87ceeb; &lt;color><br>
+        --peep-accessory-color: #00ff00; &lt;color><br>
+        --peep-facial-hair-color: #ffd700; &lt;color><br>
+        --peep-object-color: #ffa500; &lt;color><br>
+        --peep-clothes-color: #ff0000; &lt;color><br>
+        <br>
+        add extra &lt;background> layers above the clothes color, below the other peep colors, below the black lines:<br>
+        --peep-clothes-custom-paint: linear-gradient(var(--peep-clothes-color) 0 100%);<br>
+        <br>
+        Excluding --peep-flipped, All these properties are registered so they can be transitioned or animated if the browser supports it
+      </section>
     </div>
   </main>
 
@@ -1173,13 +1207,14 @@
     add extra stuff to the bg above the default layers, below the black lines
     --peep-custom-paint
 
-    --peep-hat-color: #7300E6;
-    --peep-hair-color: #FC03C2;
-    --peep-skin-color: #7D567E;
-    --peep-accessory-color: #D3914E;
-    --peep-facial-hair-color: #FC03C2;
-    --peep-object-color: #FFFFFF;
-    --peep-clothes-color: #7300E6;
+    --peep-hat-color: #FC03C2;
+    --peep-hair-color: #7300E6;
+    --peep-skin-color: #87ceeb;
+    --peep-accessory-color: #00ff00;
+    --peep-facial-hair-color: #ffd700;
+    --peep-object-color: #ffa500;
+    --peep-clothes-color: #ff0000;
+    --peep-clothes-custom-paint: linear-gradient(var(--peep-clothes-color) 0 100%);
 
     /* incomplete implementation, will change, do not use yet: */
     --peep-head-scale: 1;
